@@ -1,0 +1,31 @@
+security:
+    password_hashers:
+        App\Doctrine\Entity\Customer: 'auto'
+    providers:
+        users:
+            entity:
+                class: App\Doctrine\Entity\Customer
+                property: email
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        api:
+            pattern: ^/api/
+            stateless: true
+            provider: users
+            jwt: ~
+        main:
+            stateless: true
+            json_login:
+                check_path: /auth
+                username_path: email
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+    access_control:
+         - { path: ^/auth, roles: PUBLIC_ACCESS, methods: [POST] }
+         - { path: ^/api/products, roles: PUBLIC_ACCESS, methods: [GET] }
+         - { path: ^/api/products, roles: [ROLE_ADMIN], methods: [DELETE,PATCH] }
+         - { path: ^/api/(orders|customers), roles: [ROLE_USER, ROLE_ADMIN] }

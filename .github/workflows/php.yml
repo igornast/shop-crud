@@ -1,0 +1,42 @@
+name: Main workflow
+
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+        branches:
+            - main
+
+env:
+    default-php-version: '8.3'
+
+jobs:
+    test:
+        name: Run PHP Workflow
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                php-version: ${{ env.default-php-version }}
+                tools: composer
+
+            - name: Install Dependencies
+              run: composer install --no-progress --optimize-autoloader --working-dir=app
+
+            - name: Run Tests
+              run: composer run test-ci --working-dir=app
+
+            - name: Upload Coverage to Codecov
+              if: github.ref == 'refs/heads/main'
+              uses: codecov/codecov-action@v5
+              with:
+                  files: app/clover.xml
+                  disable_search: 'true'
+              env:
+                CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

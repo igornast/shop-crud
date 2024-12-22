@@ -1,0 +1,28 @@
+monolog:
+    handlers:
+        main:
+            type: stream
+            path: "php://stdout"
+        console:
+            type: console
+            process_psr_3_messages: false
+            channels: ['!event', '!doctrine', '!console']
+
+when@dev:
+    monolog:
+        handlers:
+            main:
+                formatter: monolog.formatter.line
+
+when@test:
+    monolog:
+        handlers:
+            main:
+                type: 'null'
+                formatter: null
+
+when@prod:
+    monolog:
+        handlers:
+            main:
+                level: info
