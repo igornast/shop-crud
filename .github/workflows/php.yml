@@ -32,11 +32,11 @@ jobs:
             - name: Run Tests
               run: composer run test-ci --working-dir=app
 
-            - name: Upload Coverage to Codecov
-              if: github.ref == 'refs/heads/main'
-              uses: codecov/codecov-action@v5
-              with:
-                  files: app/clover.xml
-                  disable_search: 'true'
-              env:
-                CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+#            - name: Upload Coverage to Codecov
+#              if: github.ref == 'refs/heads/main'
+#              uses: codecov/codecov-action@v5
+#              with:
+#                  files: app/clover.xml
+#                  disable_search: 'true'
+#              env:
+#                CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

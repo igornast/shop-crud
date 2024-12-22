@@ -4,7 +4,7 @@
 
 Follow the steps below to set up the project:
 
-### Build and Start Docker Containers ###
+#### Build and Start Docker Containers ####
 
 Build the `nginx` and `php` images from the provided Dockerfiles.
 
@@ -14,13 +14,13 @@ Start the `nginx`, `php`, and `db` services.
 docker-compose up --build
 ```
 
-### Generate JWT Keys ###
+#### Generate JWT Keys ####
 
 ```shell
 make jwt-keys
 ```
 
-### Database ###
+#### Database ####
 
 To initialize or reset the database 
 (drop, recreate, update schema, and load fixtures), use the following command:
@@ -35,6 +35,30 @@ This will:
 * Update the schema to match the current entities.
 * Load predefined data fixtures.
 
+## API Resources
+
+### Customers
+- **Base Path**: `/api/customers`
+- Manage customer-related data, including fetching, and updating, and deleting customer records.
+
+### Orders
+- **Base Path**: `/api/orders`
+- Handle order-related operations, such as creating orders, retrieving order details, updating, and deleting orders.
+
+### Products
+- **Base Path**: `/api/products`
+- Manage product information, including retrieving product details, updating, and deleting product records.
+
+## API Documentation
+
+The API documentation provides detailed information about all available endpoints, including:
+- HTTP methods
+- Request and response formats
+- Authentication and authorization requirements
+
+You can access the API documentation at:
+
+[http://localhost/api](http://localhost/api)
 
 ## **JWT Setup**
 This project uses **JWT (JSON Web Tokens)** for authentication, 
