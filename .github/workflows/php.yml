@@ -45,3 +45,6 @@ jobs:
 
             - name: Run Tests
               run: composer run test-ci --working-dir=app
+              env:
+                  DATABASE_URL: 'postgresql://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports[5432] }}/shop_db?serverVersion=17&charset=utf8'
+
