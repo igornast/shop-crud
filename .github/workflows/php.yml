@@ -44,6 +44,13 @@ jobs:
               id: composer-cache
               run: echo "dir=$(composer config cache-files-dir --working-dir=app)" >> $GITHUB_OUTPUT
 
+            - name: Cache composer dependencies
+              uses: actions/cache@v3
+              with:
+                  path: ${{ steps.composer-cache.outputs.dir }}
+                  key: ${{ runner.os }}-composer-${{ hashFiles('app/composer.lock') }}
+                  restore-keys: ${{ runner.os }}-composer-
+
             - name: Install Dependencies
               run: composer install --no-progress --optimize-autoloader --working-dir=app
 
