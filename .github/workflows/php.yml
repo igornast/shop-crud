@@ -16,27 +16,34 @@ jobs:
         name: Run PHP Workflow
         runs-on: ubuntu-latest
 
+        services:
+            postgres:
+                image: postgres:17.2-alpine
+                env:
+                    POSTGRES_USER: postgres
+                    POSTGRES_PASSWORD: postgres
+                    POSTGRES_DB: shop_db_test
+                ports:
+                    - 5432/tcp
+                options: >-
+                    --health-cmd "pg_isready -U postgres" 
+                    --health-interval 10s 
+                    --health-timeout 5s 
+                    --health-retries 5
+
         steps:
             - name: Checkout code
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
                 php-version: ${{ env.default-php-version }}
-                tools: composer
+                tools: composer, phpunit-bridge
+                extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, pgsql
 
             - name: Install Dependencies
               run: composer install --no-progress --optimize-autoloader --working-dir=app
 
             - name: Run Tests
               run: composer run test-ci --working-dir=app
-
-#            - name: Upload Coverage to Codecov
-#              if: github.ref == 'refs/heads/main'
-#              uses: codecov/codecov-action@v5
-#              with:
-#                  files: app/clover.xml
-#                  disable_search: 'true'
-#              env:
-#                CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
