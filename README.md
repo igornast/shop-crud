@@ -1,5 +1,8 @@
 # shop-crud
 
+![PHPStan](https://img.shields.io/badge/PHPStan-Level%206-brightgreen)
+
+---
 ## Setup ## 
 
 Follow the steps below to set up the project:
