@@ -54,6 +54,9 @@ jobs:
             - name: Install Dependencies
               run: composer install --no-progress --optimize-autoloader --working-dir=app
 
+            - name: Generate JWT Keys
+              run: php app/bin/console lexik:jwt:generate-keypair --env=test
+
             - name: Run Tests
               run: composer run test-ci --working-dir=app
               env:
