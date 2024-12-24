@@ -38,6 +38,28 @@ This will:
 * Update the schema to match the current entities.
 * Load predefined data fixtures.
 
+### URLs
+
+The following URLs are available in the system:
+
+- **API Documentation**:  
+  [http://localhost/api](http://localhost/api)  
+  Provides detailed API documentation, including available endpoints, request/response schemas, and authentication requirements.
+
+- **Login Endpoint**:  
+  [http://localhost/auth](http://localhost/auth)  
+  Use this endpoint to obtain a JWT token for authentication.  (Available int the API documentation)
+  Example request:
+  ```bash
+  curl -X 'POST' \
+    'http://localhost/auth' \
+    -H 'accept: application/json' \
+    -H 'Content-Type: application/json' \
+    -d '{
+    "email": "admin@example.com",
+    "password": "password"
+  }'
+
 ## API Resources
 
 ### Customers
@@ -51,6 +73,30 @@ This will:
 ### Products
 - **Base Path**: `/api/products`
 - Manage product information, including retrieving product details, updating, and deleting product records.
+
+## User Roles ##
+The system supports two user roles:
+
+1. Admin User (`ROLE_ADMIN`):
+
+* Has access to all API resources and operations.
+* Can perform administrative tasks such as creating, updating, and deleting customers, products, and orders.
+
+Regular User (`ROLE_USER`):
+
+* Has limited access to API resources.
+* Can perform user-specific tasks like creating and viewing orders but cannot perform administrative operations.
+
+## Default Customer Accounts ## 
+When loading fixtures, the system creates two default customer accounts:
+
+| Name           | Email               | Role         | Password  |
+|----------------|---------------------|--------------|-----------|
+| Admin User     | admin@example.com   | ROLE_ADMIN   | password  |
+| Regular User   | user@example.com    | ROLE_USER    | password  |
+
+- **Password for Both Accounts**: `password`
+- These accounts can be used for testing and development purposes.
 
 ## API Documentation
 

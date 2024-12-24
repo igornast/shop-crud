@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use App\Doctrine\Trait\TimestampTrait;
+use App\State\ProductPatchStateProcessor;
 use Doctrine\ORM\Mapping as ORM;
 use Money\Money;
 use Ramsey\Uuid\Uuid;
@@ -27,7 +28,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     ),
     Get,
     GetCollection,
-    Patch(security: 'is_granted("ROLE_ADMIN")'),
+    Patch(security: 'is_granted("ROLE_ADMIN")', processor: ProductPatchStateProcessor::class),
     Delete(security: 'is_granted("ROLE_ADMIN")'),
 ]
 class Product

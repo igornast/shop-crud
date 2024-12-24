@@ -70,14 +70,27 @@ it('can patch if admin', function (string $productId): void {
         'PATCH',
         sprintf('api/products/%s', $productId),
         'ROLE_ADMIN',
-        ['name' => 'new product name', 'description' => 'new product description']
+        [
+            'sku' => 'new sku',
+            'category' => 'new category',
+            'brand' => 'new brand',
+            'name' => 'new product name',
+            'description' => 'new product description',
+            'price' => ['amount' => '999999', 'currency' => 'USD'],
+        ]
     );
 
     $data = json_decode($response->getContent(), true);
 
     expect($response->getStatusCode())->toBe(Response::HTTP_OK)
+
+    ->and($data['sku'])->toBe('new sku')
+    ->and($data['brand'])->toBe('new brand')
     ->and($data['name'])->toBe('new product name')
-    ->and($data['description'])->toBe('new product description');
+    ->and($data['description'])->toBe('new product description')
+    ->and($data['category'])->toBe('new category')
+    ->and($data['price']['amount'])->toBe('999999')
+    ->and($data['price']['currency'])->toBe('USD');
 })->depends('it fetches a collection public');
 
 it('can delete if admin', function (string $productId): void {
