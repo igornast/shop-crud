@@ -3,6 +3,12 @@
 ![PHPStan](https://img.shields.io/badge/PHPStan-Level%206-brightgreen)
 
 ---
+
+> ## About This Project
+> This repository was created as part of a recruitment process.
+> The project is for demonstration purposes only and should not be used in a production environment.
+
+---
 ## Setup ## 
 
 Follow the steps below to set up the project:
