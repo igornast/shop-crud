@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 use Symfony\Component\HttpFoundation\Response;
 
-beforeAll(function (): void {
-    resetDatabase();
-});
-
 afterEach(function (): void {
     self::ensureKernelShutdown();
 });
@@ -36,29 +32,20 @@ it('fetches a single if admin', function (string $orderId): void {
 })->depends('it fetches a collection if admin');
 
 it('can\'t fetch a collection if public', function (): void {
-    $client = createClientAnonymous($this);
-    $client->request('GET', 'api/orders');
-
-    $response = $client->getResponse();
+    $response =  makeRequest($this, 'GET', 'api/orders');
 
     expect($response->getStatusCode())->toBe(Response::HTTP_UNAUTHORIZED);
 });
 
 it('can\'t fetch single if public', function (string $orderId): void {
-    $client = createClientAnonymous($this);
-    $client->request('GET', sprintf('api/orders/%s', $orderId));
-
-    $response = $client->getResponse();
+    $response =  makeRequest($this, 'GET', sprintf('api/orders/%s', $orderId));
 
     expect($response->getStatusCode())->toBe(Response::HTTP_UNAUTHORIZED);
 })->depends('it fetches a collection if admin');
 
 
 it('creates an order', function (): string {
-    $client = createClientAnonymous($this);
-    $client->request('GET', 'api/products');
-    $productResponse = $client->getResponse();
-
+    $productResponse =  makeRequest($this, 'GET', 'api/products');
     $productData = json_decode($productResponse->getContent(), true);
 
     $response = makeRoleRequest(
@@ -95,9 +82,7 @@ it('can\'t delete the order if not admin', function (string $orderId) {
 })->depends('it creates an order');
 
 it('can patch an order if admin', function (string $orderId): void {
-    $client = createClientAnonymous($this);
-    $client->request('GET', 'api/products');
-    $productResponse = $client->getResponse();
+    $productResponse =  makeRequest($this, 'GET', 'api/products');
 
     $productData = json_decode($productResponse->getContent(), true);
     $productCollection = collect($productData);

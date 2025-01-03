@@ -25,6 +25,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     ORM\HasLifecycleCallbacks,
     ApiResource(
         normalizationContext: ['groups' => ['read_customer']],
+        denormalizationContext: ['groups' => ['write_customer']],
     ),
     Get(security: 'is_granted("ROLE_ADMIN") or object == user'),
     GetCollection(security: 'is_granted("ROLE_ADMIN")'),
@@ -49,7 +50,7 @@ class Customer implements UserInterface, PasswordAuthenticatedUserInterface
         ApiProperty,
         Assert\NotBlank,
         Assert\Length(min: 2, max: 100),
-        Groups(['read_customer', 'read_order'])
+        Groups(['read_customer', 'read_order', 'write_customer'])
     ]
     private string $name;
 
@@ -57,7 +58,7 @@ class Customer implements UserInterface, PasswordAuthenticatedUserInterface
         ORM\Column(type: 'string', length: 255, unique: true),
         ApiProperty,
         Assert\Email,
-        Groups(['read_customer', 'read_order'])
+        Groups(['read_customer', 'read_order', 'write_customer'])
     ]
     private string $email;
 

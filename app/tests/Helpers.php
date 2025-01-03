@@ -2,27 +2,51 @@
 
 declare(strict_types=1);
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\HttpFoundation\Response;
 
-function makeRoleRequest(WebTestCase $testCase, string $method, string $url, string $role, array $parameters = []): Response
+use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
+use ApiPlatform\Symfony\Bundle\Test\Client;
+use App\DataFixtures\CustomerFixtures;
+
+function createClientAnonymous(ApiTestCase $context, bool $reuse = false): Client
 {
-    $contentType = match ($method) {
-        'PATCH' => 'application/merge-patch+json',
-        default => 'application/json',
+    static $client = null;
+
+    if ($reuse && null !== $client) {
+        return $client;
+    }
+
+    $reflection = new ReflectionMethod($context, 'createClient');
+    $reflection->setAccessible(true);
+    /** @var Client $client */
+    $client = $reflection->invoke($context);
+    $client->getKernelBrowser()->insulate();
+
+    return $client;
+}
+
+
+function getTokenForRole(Client $client, string $role): string
+{
+    static $tokens = [];
+
+    if (isset($tokens[$role])) {
+        return $tokens[$role];
+    }
+
+    $email = match ($role) {
+        'ROLE_ADMIN' => CustomerFixtures::CUSTOMER_ADMIN_EMAIL,
+        'ROLE_USER' => CustomerFixtures::CUSTOMER_USER_EMAIL,
+        default => throw new InvalidArgumentException(sprintf('Unknown role "%s"', $role)),
     };
 
-    $client = createClientAnonymous($testCase, true);
-    $client->request(
-        method: $method,
-        uri: $url,
-        server: [
-            'HTTP_AUTHORIZATION' => sprintf('Bearer %s', getTokenForRole($client, $role)),
-            'CONTENT_TYPE' => $contentType,
-            'HTTP_ACCEPT' => 'application/json',
-        ],
-        content: (!empty($parameters) ? json_encode($parameters) : null)
-    );
+    $client->request('POST', '/auth', ['json' => ['email' => $email, 'password' => CustomerFixtures::CUSTOMER_PASSWORD]]);
 
-    return $client->getResponse();
+    $response = $client->getResponse();
+    if (200 !== $response->getStatusCode()) {
+        throw new RuntimeException(sprintf('Failed to get token for role "%s": %s', $role, $response->getContent()));
+    }
+
+    $data = json_decode($response->getContent(), true);
+
+    return $tokens[$role] = $data['token']  ?? throw new RuntimeException('Token not found in response');
 }
