@@ -1,49 +1,54 @@
 <?php
 
 
-use App\DataFixtures\CustomerFixtures;
+use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
+use ApiPlatform\Symfony\Bundle\Test\Response;
 use App\Kernel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 
-uses(WebTestCase::class)->beforeAll(fn () => self::ensureKernelShutdown())->in('Functional');
+uses(ApiTestCase::class)->beforeAll(fn () => self::ensureKernelShutdown())->in('Functional');
+pest()->beforeAll(fn () => resetDatabase())->in('Functional');
 
-function createClientAnonymous(WebTestCase $context, bool $reuse = false): KernelBrowser
+function makeRoleRequest(ApiTestCase $testCase, string $method, string $url, string $role, array $parameters = []): Response
 {
-    static $client = null;
-
-    if ($reuse && null !== $client) {
-        return $client;
-    }
-
-    $reflection = new ReflectionMethod($context, 'createClient');
-    $reflection->setAccessible(true);
-    $client = $reflection->invoke($context);
-    $client->insulate();
-
-    return $client;
-}
-
-function getTokenForRole(KernelBrowser $client, string $role): string
-{
-    $email = match ($role) {
-        'ROLE_ADMIN' => CustomerFixtures::CUSTOMER_ADMIN_EMAIL,
-        'ROLE_USER' => CustomerFixtures::CUSTOMER_USER_EMAIL,
-        default => throw new InvalidArgumentException(sprintf('Unknown role "%s"', $role)),
+    $contentType = match ($method) {
+        'PATCH' => 'application/merge-patch+json',
+        default => 'application/json',
     };
 
-    $client->jsonRequest('POST', '/auth', ['email' => $email, 'password' => CustomerFixtures::CUSTOMER_PASSWORD]);
+    $client = createClientAnonymous($testCase, true);
+    $client->request(
+        method: $method,
+        url: $url,
+        options: [
+            'headers' => [
+                'Content-Type' => $contentType,
+                'Accept' => 'application/json',
+            ],
+            'auth_bearer' => getTokenForRole($client, $role),
+            'json' => $parameters,
+        ],
+    );
 
-    $response = $client->getResponse();
-    if (200 !== $response->getStatusCode()) {
-        throw new RuntimeException(sprintf('Failed to get token for role "%s": %s', $role, $response->getContent()));
-    }
+    return $client->getResponse();
+}
 
-    $data = json_decode($response->getContent(), true);
+function makeRequest(ApiTestCase $testCase, string $method, string $url): Response
+{
+    $client = createClientAnonymous($testCase);
+    $client->request(
+        method: $method,
+        url: $url,
+        options: [
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+            ],
+        ],
+    );
 
-    return $data['token'] ?? throw new RuntimeException('Token not found in response');
+    return $client->getResponse();
 }
 
 function resetDatabase(): void
@@ -61,9 +66,11 @@ function resetDatabase(): void
         ['command' => 'doctrine:fixtures:load', '--no-interaction' => true, '--env' => 'test'],
     ];
 
-    foreach ($commands as $command) {
-        $application->run(new ArrayInput($command));
+    try {
+        foreach ($commands as $command) {
+            $application->run(new ArrayInput($command));
+        }
+    } finally {
+        $kernel->shutdown();
     }
-
-    $kernel->shutdown();
 }

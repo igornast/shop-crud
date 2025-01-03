@@ -4,21 +4,14 @@ declare(strict_types=1);
 
 use Symfony\Component\HttpFoundation\Response;
 
-beforeAll(function (): void {
-    resetDatabase();
-});
-
 afterEach(function (): void {
     self::ensureKernelShutdown();
 });
 
 it('fetches a collection public', function (): string {
-    $client = createClientAnonymous($this);
-    $client->request('GET', 'api/products', ['page' => 1]);
+    $response =  makeRequest($this, 'GET', 'api/products');
 
-    $response = $client->getResponse();
     $items = json_decode($response->getContent());
-
 
     expect($response->getStatusCode())->toBe(Response::HTTP_OK)
         ->and($response->getContent())->toBeJson()
@@ -28,27 +21,21 @@ it('fetches a collection public', function (): string {
 });
 
 it('fetches a single public', function (string $productId): void {
-    $client = createClientAnonymous($this);
-    $client->request('GET', sprintf('api/products/%s', $productId));
+    $response =  makeRequest($this, 'GET', sprintf('api/products/%s', $productId));
 
-    $response = $client->getResponse();
     expect($response->getStatusCode())->toBe(Response::HTTP_OK)
         ->and($response->getContent())->toBeJson();
 })->depends('it fetches a collection public');
 
 it('can\'t delete if unauthorized', function (string $productId): void {
-    $client = createClientAnonymous($this);
-    $client->request('DELETE', sprintf('api/products/%s', $productId));
+    $response =  makeRequest($this, 'DELETE', sprintf('api/products/%s', $productId));
 
-    $response = $client->getResponse();
     expect($response->getStatusCode())->toBe(Response::HTTP_UNAUTHORIZED);
 })->depends('it fetches a collection public');
 
 it('can\'t patch if unauthorized', function (string $productId): void {
-    $client = createClientAnonymous($this);
-    $client->request('PATCH', sprintf('api/products/%s', $productId));
+    $response =  makeRequest($this, 'PATCH', sprintf('api/products/%s', $productId));
 
-    $response = $client->getResponse();
     expect($response->getStatusCode())->toBe(Response::HTTP_UNAUTHORIZED);
 })->depends('it fetches a collection public');
 
