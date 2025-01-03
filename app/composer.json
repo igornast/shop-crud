@@ -105,6 +105,7 @@
       "@test:stan",
       "@test:arch",
       "@test:phpunit:u",
+      "@reset-test-db",
       "@test:phpunit:f"
     ],
     "test-ci": [
@@ -112,7 +113,14 @@
       "@test:stan",
       "@test:arch",
       "./vendor/bin/pest --testsuite Unit --coverage --min=90 --coverage-clover clover.xml",
+      "@reset-test-db",
       "@test:phpunit:f"
+    ],
+    "reset-test-db": [
+      "php bin/console doctrine:database:drop --if-exists --force --env=test",
+      "php bin/console doctrine:database:create --env=test",
+      "php bin/console doctrine:schema:update --force --env=test",
+      "php bin/console doctrine:fixtures:load --no-interaction --env=test"
     ]
   },
   "config": {
