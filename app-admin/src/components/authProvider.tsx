@@ -8,10 +8,12 @@ interface JwtPayload {
     username: string;
 }
 
+const ApiAuth = process.env.REACT_APP_API_AUTH || '';
+
 const authProvider = {
     login: ({username, password}: { username: string; password: string }) => {
 
-        const request = new Request(`http://localhost/auth`, {
+        const request = new Request(ApiAuth, {
             method: "POST",
             body: JSON.stringify({email: username, password}),
             headers: new Headers({"Content-Type": "application/json"}),
