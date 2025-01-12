@@ -63,3 +63,12 @@ jobs:
               run: composer run test-ci --working-dir=app
               env:
                   DATABASE_URL: 'postgresql://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports[5432] }}/shop_db?serverVersion=17&charset=utf8'
+
+            - name: Upload Coverage to Codecov
+              if: github.ref == 'refs/heads/main'
+              uses: codecov/codecov-action@v5
+              with:
+                  files: app/clover.xml
+                  disable_search: 'true'
+              env:
+                  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

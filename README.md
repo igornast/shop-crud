@@ -1,6 +1,7 @@
 # shop-crud
 
 ![PHPStan](https://img.shields.io/badge/PHPStan-Level%206-brightgreen)
+[![codecov](https://codecov.io/gh/igornast/shop-crud/graph/badge.svg?token=1HZCNIWEF4)](https://codecov.io/gh/igornast/shop-crud)
 
 ---
 
