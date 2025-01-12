@@ -6,25 +6,25 @@ namespace App\EventSubscriber;
 
 use ApiPlatform\Doctrine\Orm\Paginator;
 use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\Symfony\EventListener\EventPriorities;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class CollectionResponseSubscriber implements EventSubscriberInterface
 {
-    public static function getSubscribedEvents()
+    private const string HEADER_CONTENT_RANGE = 'Content-Range';
+    private const string HEADER_ACCESS_CONTROL_EXPOSE = 'Access-Control-Expose-Headers';
+
+    public static function getSubscribedEvents(): array
     {
-      return [
-          KernelEvents::RESPONSE => ['addRangeHeader', EventPriorities::POST_RESPOND]
-      ];
+        return [
+            KernelEvents::RESPONSE => ['addRangeHeader', EventPriorities::POST_RESPOND],
+        ];
     }
 
     public function addRangeHeader(ResponseEvent $event): void
     {
-
         $request = $event->getRequest();
         $response = $event->getResponse();
 
@@ -44,7 +44,7 @@ class CollectionResponseSubscriber implements EventSubscriberInterface
         $start = ($page * $limit) - $itemsCount;
         $end = ($page * $limit) - ($limit - $itemsCount);
 
-        $response->headers->set('Content-Range', sprintf('items %d-%d/%d', $start, $end, $totalItems));
-        $response->headers->set('Access-Control-Expose-Headers', 'Content-Range');
+        $response->headers->set(self::HEADER_CONTENT_RANGE, sprintf('items %d-%d/%d', $start, $end, $totalItems));
+        $response->headers->set(self::HEADER_ACCESS_CONTROL_EXPOSE, self::HEADER_CONTENT_RANGE);
     }
 }
